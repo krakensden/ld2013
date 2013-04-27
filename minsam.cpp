@@ -6,6 +6,7 @@
 const int width = 800;
 const int height = 800;
 const float stepping = 250.0;
+const float swingTime = 500; // ms
 
 double distance(sf::Vector2f a, sf::Vector2f b)
 {
@@ -42,7 +43,8 @@ sf::Vector2f swingFrom(sf::Vector2f src, double percent)
 
 class Player {
 	sf::CircleShape self;
-	sf::CircleShape sword;
+	sf::Texture swordTexture;
+	sf::Sprite sword;
 
 	sf::Keyboard::Key action, wiggle;
 
@@ -54,12 +56,15 @@ class Player {
 	public:
 	Player(bool firstPlayer)
 		: self(10)
-		, sword(3)
+		, sword(swordTexture)
 		, leaping(false)
 		, swinging(false)
 		, firstPlayer(firstPlayer)
 		, elapsedSwingTime(0)
 	{
+		sf::IntRect stRect(0,0,25,25);
+		swordTexture.loadFromFile("sword.png", stRect);
+		sword.setTextureRect(stRect);
 		reset();
 	}
 
@@ -74,31 +79,23 @@ class Player {
 	void reset()
 	{
 		float pHeight = selfBound().height;
-		float sHeight = swordBound().height;
-
 		int selfYCoord = height/2-pHeight/2;
-		int swordYCoord = height/2-sHeight/2;
 
 		if ( firstPlayer )
 		{
 			self.setPosition(width/4,selfYCoord);
-			//sword.setPosition(width/4,swordYCoord);
 
 			self.setFillColor(sf::Color(250, 218, 221));
 			self.setOutlineColor(sf::Color(0,0,0));
 			self.setOutlineThickness(1);
-			sword.setFillColor(sf::Color(111,111,111));
 		}
 		else 
 		{
 			self.setPosition(3*width/4,selfYCoord);
-			//sword.setPosition(3*width/4+pHeight-sHeight,swordYCoord);
 
 			self.setFillColor(sf::Color(239, 48, 36));
 			self.setOutlineColor(sf::Color(0,0,0));
 			self.setOutlineThickness(1);
-
-			sword.setFillColor(sf::Color(111,111,111));
 		}
 		resetSword();
 		leaping = false;
@@ -113,7 +110,9 @@ class Player {
 		int swordYCoord = selfBound().top-sHeight/2;
 		if ( firstPlayer )
 		{
-			sword.setPosition(selfBound().left,swordYCoord);
+			sword.setOrigin(25,25);
+			sword.setRotation(180);
+			sword.setPosition(selfBound().left,selfBound().height+swordYCoord);
 		}
 		else 
 		{
@@ -151,13 +150,13 @@ class Player {
 		if ( swinging )
 		{
 			elapsedSwingTime += dt;
-			double swingPercent = elapsedSwingTime / 250.0;
+			float swingPercent = elapsedSwingTime / swingTime;
 			if ( firstPlayer )
 				sword.setPosition(selfBound().left+swingPercent*50, selfBound().top+swing(swingPercent));
 			else
-				sword.setPosition(selfBound().left-swingPercent*50, selfBound().top+swing(-1*swingPercent));
-			printf("%d %d %F\n", dt, swingPercent, swing(swingPercent));
-			if ( elapsedSwingTime > 250 )
+				sword.setPosition(selfBound().left-swingPercent*50, selfBound().top-swing(-1*swingPercent));
+			printf("%d %2.2F %2.2F\n", dt, swingPercent, swing(swingPercent));
+			if ( elapsedSwingTime > swingTime )
 			{
 				swinging = false;
 				elapsedSwingTime = 0;
