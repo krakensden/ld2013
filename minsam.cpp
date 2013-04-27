@@ -4,7 +4,7 @@
 
 const int width = 800;
 const int height = 800;
-const float stepping = 50.0; // 50 px per second
+const float stepping = 250.0;
 
 class Player {
 	sf::CircleShape self;
@@ -28,18 +28,20 @@ class Player {
 
 	void reset()
 	{
+		float pHeight = self.getGlobalBounds().height;
+		int yCoord = height/2-pHeight/2;
 		if ( firstPlayer )
 		{
-			self.setPosition(10,10);
-			sword.setPosition(10,11);
+			self.setPosition(width/4,yCoord);
+			sword.setPosition(width/4,yCoord);
 
 			self.setFillColor(sf::Color(250, 218, 221));
 			sword.setFillColor(sf::Color(111,111,111));
 		}
 		else 
 		{
-			self.setPosition(200,10);
-			sword.setPosition(200,11);
+			self.setPosition(3*width/4,yCoord);
+			sword.setPosition(3*width/4,yCoord);
 
 			self.setFillColor(sf::Color(239, 48, 36));
 			sword.setFillColor(sf::Color(111,111,111));
@@ -57,19 +59,26 @@ class Player {
 	}
 
 	void tick(int64_t dt) {
+		float step = 0.0;
 		if ( leaping )
 		{
 			if ( firstPlayer )
 			{
 				if ( self.getPosition().x < width )
-					self.move(stepping*dt/1000,0);
+				{
+					step = stepping*dt/1000;
+				}
 			}
 			else
 			{
 				if ( self.getPosition().x > 0 )
-					self.move(-1*stepping*dt/1000,0);
+				{
+					step = -1*stepping*dt/1000;
+				}
 			}
 		}
+		self.move(step,0);
+		sword.move(step,0);
 	}
 
 	void draw(sf::RenderWindow& w)
