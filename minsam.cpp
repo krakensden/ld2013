@@ -122,20 +122,21 @@ class Player {
 		if ( swinging )
 		{
 			elapsedSwingTime += dt;
-			float swingPercent = elapsedSwingTime / swingTime;
-			resetSword();
-
-			if ( firstPlayer )
-				sword.move(swingPercent*30, swing(swingPercent));
-			else
-				sword.move(-1*swingPercent*30, -1*swing(swingPercent));
-
-			if ( elapsedSwingTime > swingTime )
+			if ( elapsedSwingTime < swingTime )
 			{
-				swinging = false;
-				elapsedSwingTime = 0;
+				float swingPercent = elapsedSwingTime / swingTime;
+
 				resetSword();
+
+				if ( firstPlayer )
+					sword.move(swingPercent*30, swing(swingPercent));
+				else
+					sword.move(-1*swingPercent*30, -1*swing(swingPercent));
 			}
+			// retract for second swing:
+				//swinging = false;
+				//elapsedSwingTime = 0;
+				//resetSword();
 		}
 		else
 		{
