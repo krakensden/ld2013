@@ -2,6 +2,10 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 
+const int width = 800;
+const int height = 800;
+const float stepping = 50.0; // 50 px per second
+
 class Player {
 	sf::CircleShape self;
 	sf::CircleShape sword;
@@ -19,6 +23,11 @@ class Player {
 		, swinging(false)
 		, firstPlayer(firstPlayer)
 	{
+		reset();
+	}
+
+	void reset()
+	{
 		if ( firstPlayer )
 		{
 			self.setPosition(10,10);
@@ -35,6 +44,8 @@ class Player {
 			self.setFillColor(sf::Color(239, 48, 36));
 			sword.setFillColor(sf::Color(111,111,111));
 		}
+		leaping = false;
+		swinging = false;
 	}
 
 	void leap() {
@@ -46,13 +57,18 @@ class Player {
 	}
 
 	void tick(int64_t dt) {
-		float stepping = 20.0; // 20 px per second
 		if ( leaping )
 		{
 			if ( firstPlayer )
-				self.move(stepping*dt/1000,0);
+			{
+				if ( self.getPosition().x < width )
+					self.move(stepping*dt/1000,0);
+			}
 			else
-				self.move(-1*stepping*dt/1000,0);
+			{
+				if ( self.getPosition().x > 0 )
+					self.move(-1*stepping*dt/1000,0);
+			}
 		}
 	}
 
@@ -66,7 +82,7 @@ class Player {
 
 int main() {
 	printf("Hello world\n");
-	sf::RenderWindow window(sf::VideoMode(800, 600), "mini samurai");
+	sf::RenderWindow window(sf::VideoMode(width, height), "mini samurai");
 	sf::Clock clock;
 
 	window.clear();
@@ -76,6 +92,7 @@ int main() {
 	while (window.isOpen())
 	{
 		sf::Event e;
+		int64_t dt = clock.getElapsedTime().asMilliseconds();
 		while ( window.pollEvent(e) )
 		{
 				if ( e.type == sf::Event::Closed )
@@ -90,13 +107,23 @@ int main() {
 					f.leap();
 				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
 					s.leap();
+				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
+				{
+					// RESET
+					s.reset();
+					f.reset();
+					window.clear();
+				}
 
-				int64_t dt = clock.getElapsedTime().asMilliseconds();
-				s.tick(dt);
-				f.tick(dt);
-				f.draw(window);
-				s.draw(window);
 		}
+		s.tick(dt);
+		f.tick(dt);
+		window.clear();
+
+		f.draw(window);
+		s.draw(window);
+		clock.restart();
+
 		window.display();
 	}
 }
