@@ -21,7 +21,7 @@ class Player {
 
 	sf::Keyboard::Key action, wiggle;
 
-	bool leaping, swinging;
+	bool leaping, swinging, dead;
 	bool firstPlayer;
 
 	int64_t elapsedSwingTime;
@@ -32,6 +32,7 @@ class Player {
 		, sword(swordTexture)
 		, leaping(false)
 		, swinging(false)
+		, dead(false)
 		, firstPlayer(firstPlayer)
 		, elapsedSwingTime(0)
 	{
@@ -77,6 +78,7 @@ class Player {
 
 		leaping = false;
 		swinging = false;
+		dead = false;
 		elapsedSwingTime = 0;
 	}
 
@@ -146,7 +148,8 @@ class Player {
 
 	void draw(sf::RenderWindow& w)
 	{
-		w.draw(self);
+		if ( !dead )
+			w.draw(self);
 		w.draw(sword);
 
 	}
@@ -156,6 +159,16 @@ class Player {
 			return true;
 		return false;
 	}
+
+	void kill() {
+		dead = true;
+	}
+};
+
+enum States 
+{
+	Game,
+	Victory
 };
 
 int main() {
@@ -171,6 +184,8 @@ int main() {
 
 	Player f(true), s(false);
 
+	States state = Game;
+
 	while (window.isOpen())
 	{
 		sf::Event e;
@@ -185,26 +200,38 @@ int main() {
 			{
 				return 0;
 			}
-			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) 
-				f.act();
-			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
-				s.act();
+			if ( state == Game )
+			{
+				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) 
+					f.act();
+				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
+					s.act();
+			}
 			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
 			{
 				// RESET
 				s.reset();
 				f.reset();
 				window.clear();
+				state = Game;
 			}
 		}
-		s.tick(dt);
-		f.tick(dt);
+		if ( state == Game )
+		{
+			s.tick(dt);
+			f.tick(dt);
+		}
 
-		if ( s.swordCollides(f) )
-			printf("second player's sword is hitting the first player\n");
-		if ( f.swordCollides(s) )
-			printf("first player's sword is hitting the second player\n");
 
+		bool swon = s.swordCollides(f), fwon = f.swordCollides(s);
+		if ( swon || fwon )
+		{
+			state = Victory;
+			if ( swon )
+				f.kill();
+			if ( fwon )
+				s.kill();
+		}
 
 		// The universe's least-efficient drawing method
 		window.clear();
