@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 
@@ -26,22 +25,34 @@ class Player {
 		reset();
 	}
 
+	sf::FloatRect swordBound() {
+		return sword.getGlobalBounds();
+	}
+
+	sf::FloatRect selfBound() {
+		return self.getGlobalBounds();
+	}
+
 	void reset()
 	{
-		float pHeight = self.getGlobalBounds().height;
-		int yCoord = height/2-pHeight/2;
+		float pHeight = selfBound().height;
+		float sHeight = swordBound().height;
+
+		int selfYCoord = height/2-pHeight/2;
+		int swordYCoord = height/2-sHeight/2;
+
 		if ( firstPlayer )
 		{
-			self.setPosition(width/4,yCoord);
-			sword.setPosition(width/4,yCoord);
+			self.setPosition(width/4,selfYCoord);
+			sword.setPosition(width/4,swordYCoord);
 
 			self.setFillColor(sf::Color(250, 218, 221));
 			sword.setFillColor(sf::Color(111,111,111));
 		}
 		else 
 		{
-			self.setPosition(3*width/4,yCoord);
-			sword.setPosition(3*width/4,yCoord);
+			self.setPosition(3*width/4,selfYCoord);
+			sword.setPosition(3*width/4+pHeight-sHeight,swordYCoord);
 
 			self.setFillColor(sf::Color(239, 48, 36));
 			sword.setFillColor(sf::Color(111,111,111));
@@ -50,12 +61,11 @@ class Player {
 		swinging = false;
 	}
 
-	void leap() {
-		leaping = true;
-	}
-
-	void swing() {
-		swinging = true;
+	void act() {
+		if ( !leaping )
+			leaping = true;
+		else
+			swinging = true;
 	}
 
 	void tick(int64_t dt) {
@@ -90,7 +100,6 @@ class Player {
 };
 
 int main() {
-	printf("Hello world\n");
 	sf::RenderWindow window(sf::VideoMode(width, height), "mini samurai");
 	sf::Clock clock;
 
@@ -113,9 +122,9 @@ int main() {
 					return 0;
 				}
 				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) 
-					f.leap();
+					f.act();
 				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
-					s.leap();
+					s.act();
 				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
 				{
 					// RESET
