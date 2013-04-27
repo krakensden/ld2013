@@ -185,6 +185,8 @@ int main() {
 	Player f(true), s(false);
 
 	States state = Game;
+	bool aWasPressed = false;
+	bool shiftWasPressed = false;
 
 	while (window.isOpen())
 	{
@@ -202,9 +204,9 @@ int main() {
 			}
 			if ( state == Game )
 			{
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) 
+				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !aWasPressed )
 					f.act();
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
+				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) && !shiftWasPressed )
 					s.act();
 			}
 			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
@@ -215,6 +217,8 @@ int main() {
 				window.clear();
 				state = Game;
 			}
+			aWasPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+			shiftWasPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
 		}
 		if ( state == Game )
 		{
