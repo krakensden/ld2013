@@ -149,6 +149,12 @@ class Player {
 		w.draw(sword);
 
 	}
+
+	bool swordCollides(const Player& other) const {
+		if ( sword.getGlobalBounds().intersects(other.self.getGlobalBounds()) )
+			return true;
+		return false;
+	}
 };
 
 int main() {
@@ -170,29 +176,34 @@ int main() {
 		int64_t dt = clock.getElapsedTime().asMilliseconds();
 		while ( window.pollEvent(e) )
 		{
-				if ( e.type == sf::Event::Closed )
-				{
-					return 0;
-				}
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Escape ) ) 
-				{
-					return 0;
-				}
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) 
-					f.act();
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
-					s.act();
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
-				{
-					// RESET
-					s.reset();
-					f.reset();
-					window.clear();
-				}
-
+			if ( e.type == sf::Event::Closed )
+			{
+				return 0;
+			}
+			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Escape ) ) 
+			{
+				return 0;
+			}
+			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) ) 
+				f.act();
+			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) ) 
+				s.act();
+			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
+			{
+				// RESET
+				s.reset();
+				f.reset();
+				window.clear();
+			}
 		}
 		s.tick(dt);
 		f.tick(dt);
+
+		if ( s.swordCollides(f) )
+			printf("second player's sword is hitting the first player\n");
+		if ( f.swordCollides(s) )
+			printf("first player's sword is hitting the second player\n");
+
 
 		// The universe's least-efficient drawing method
 		window.clear();
