@@ -4,7 +4,7 @@
 #include <cstdio>
 
 const int width = 800;
-const int height = 800;
+const int height = 600;
 const float stepping = 500.0;
 const float swingTime = 250; // ms
 
