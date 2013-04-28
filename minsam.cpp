@@ -32,9 +32,9 @@ class Player {
 
 	public:
 	Player(bool firstPlayer)
-		: leaping(false)
-		, self(selfTexture)
+		: self(selfTexture)
 		, sword(swordTexture)
+		, leaping(false)
 		, swinging(false)
 		, dead(false)
 		, firstPlayer(firstPlayer)
