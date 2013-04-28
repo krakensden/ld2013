@@ -13,11 +13,15 @@ double swing(double x)
 	return -15*sin(x*M_PI);
 }
 
+void center(sf::Transformable* ob)
+{
+	ob->setPosition(width/2, height/2);
+}
+
 class Player {
-	sf::CircleShape self;
-	sf::Image swordImage;
-	sf::Texture swordTexture;
-	sf::Sprite sword;
+	sf::Image swordImage, selfImage;
+	sf::Texture swordTexture, selfTexture;
+	sf::Sprite self, sword;
 
 	sf::Keyboard::Key action, wiggle;
 
@@ -28,9 +32,9 @@ class Player {
 
 	public:
 	Player(bool firstPlayer)
-		: self(10)
+		: leaping(false)
+		, self(selfTexture)
 		, sword(swordTexture)
-		, leaping(false)
 		, swinging(false)
 		, dead(false)
 		, firstPlayer(firstPlayer)
@@ -38,15 +42,22 @@ class Player {
 	{
 		sf::IntRect stRect(0,0,11,14);
 		swordImage.loadFromFile("sword.png");
+		selfImage.loadFromFile("samurai.png");
 		if ( firstPlayer )
+		{
 			swordImage.flipVertically();
+			selfImage.flipHorizontally();
+		}
 		else
 		{
 			swordImage.flipVertically();
 			swordImage.flipHorizontally();
 		}
 		swordTexture.loadFromImage(swordImage);
+		selfTexture.loadFromImage(selfImage);
+
 		sword.setTextureRect(stRect);
+		self.setTextureRect(sf::IntRect(0,0,20,20));
 		reset();
 	}
 
@@ -67,17 +78,17 @@ class Player {
 		{
 			self.setPosition(width/4,selfYCoord);
 
-			self.setFillColor(sf::Color(250, 218, 221));
-			self.setOutlineColor(sf::Color(0,0,0));
-			self.setOutlineThickness(1);
+			//self.setFillColor(sf::Color(250, 218, 221));
+			//self.setOutlineColor(sf::Color(0,0,0));
+			//self.setOutlineThickness(1);
 		}
 		else
 		{
 			self.setPosition(3*width/4,selfYCoord);
 
-			self.setFillColor(sf::Color(239, 48, 36));
-			self.setOutlineColor(sf::Color(0,0,0));
-			self.setOutlineThickness(1);
+			//self.setFillColor(sf::Color(239, 48, 36));
+			//self.setOutlineColor(sf::Color(0,0,0));
+			//self.setOutlineThickness(1);
 		}
 		resetSword();
 
@@ -135,10 +146,6 @@ class Player {
 			{
 				resetSword();
 
-				printf("%f->%f->%f\n", swingPercent
-						, swingPercent*M_PI
-						, swing(swingPercent));
-
 				if ( firstPlayer )
 				{
 					sword.setRotation(-90*swingPercent);
@@ -151,7 +158,6 @@ class Player {
 				}
 			} else if ( elapsedSwingTime < 1.5*swingTime )
 			{
-				printf("est:%f\n", swingPercent);
 				sword.move(0, -2 * (swingPercent - 1.5));
 				if ( firstPlayer )
 				{
@@ -206,6 +212,22 @@ int main() {
 	sf::Sprite background(back);
 	background.setTextureRect(sf::IntRect(0,0,width,height));
 	back.loadFromFile("drawing.png");
+		
+	sf::Font font;
+	font.loadFromFile("DejaVuSansMono-Bold.ttf");
+	sf::Text instructions("To Play:\n"
+		"Get a friend, and share the keyboard. The player on the left has the 'a' key,\n"
+		"the player on the right has the right shift key. Tap your key once to charge,\n"
+		"and once more to strike. Whoever hits a sword first, loses.", font);
+
+	sf::Text firstPlayerWins("First player wins!\n", font);
+	sf::Text secondPlayerWins("Second player wins!\n", font);
+
+	center(&firstPlayerWins);
+	center(&secondPlayerWins);
+	instructions.setCharacterSize(14);
+	instructions.setPosition(width/2-instructions.getGlobalBounds().width/2
+			,3*height/4-instructions.getGlobalBounds().height/2);
 
 	window.clear();
 
@@ -270,6 +292,25 @@ int main() {
 
 		f.draw(window);
 		s.draw(window);
+
+		if ( state == Victory )
+		{
+			if ( swon && !fwon )
+			{
+				window.draw(secondPlayerWins);
+			}
+			else if ( !swon && fwon )
+			{
+				window.draw(firstPlayerWins);
+			}
+			else if (swon && fwon )
+			{ // errbody dead
+			}
+			else
+			{ // nobody dead
+			}
+		}
+		window.draw(instructions);
 
 		clock.restart();
 		window.display();
