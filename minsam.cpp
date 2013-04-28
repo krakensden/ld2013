@@ -23,8 +23,6 @@ class Player {
 	sf::Texture swordTexture, selfTexture;
 	sf::Sprite self, sword;
 
-	sf::Keyboard::Key action, wiggle;
-
 	bool leaping, swinging, dead;
 	bool firstPlayer;
 
