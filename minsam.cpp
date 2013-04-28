@@ -10,7 +10,7 @@ const float swingTime = 250; // ms
 
 double swing(double x)
 {
-	return 5*pow(x,4);
+	return -15*sin(x*M_PI);
 }
 
 class Player {
@@ -39,7 +39,12 @@ class Player {
 		sf::IntRect stRect(0,0,11,14);
 		swordImage.loadFromFile("sword.png");
 		if ( firstPlayer )
+			swordImage.flipVertically();
+		else
+		{
+			swordImage.flipVertically();
 			swordImage.flipHorizontally();
+		}
 		swordTexture.loadFromImage(swordImage);
 		sword.setTextureRect(stRect);
 		reset();
@@ -84,14 +89,15 @@ class Player {
 
 	void resetSword()
 	{
-		float y = selfBound().top  + selfBound().height/2 - swordBound().height/2;
+		float y = selfBound().top  + selfBound().height;// - swordBound().height/2;
 		float x = selfBound().left;
 		// Move to edge
-		if ( firstPlayer )
+		if ( !firstPlayer )
 		{
 			x += selfBound().width/2;
 		}
 		sword.setPosition(x,y);
+		sword.setRotation(0);
 	}
 
 	void act() {
@@ -124,16 +130,37 @@ class Player {
 		if ( swinging )
 		{
 			elapsedSwingTime += dt;
+			float swingPercent = elapsedSwingTime / swingTime;
 			if ( elapsedSwingTime < swingTime )
 			{
-				float swingPercent = elapsedSwingTime / swingTime;
-
 				resetSword();
 
+				printf("%f->%f->%f\n", swingPercent
+						, swingPercent*M_PI
+						, swing(swingPercent));
+
 				if ( firstPlayer )
-					sword.move(swingPercent*30, swing(swingPercent));
+				{
+					sword.setRotation(-90*swingPercent);
+					sword.move(swingPercent*50, swing(swingPercent));
+				}
 				else
-					sword.move(-1*swingPercent*30, -1*swing(swingPercent));
+				{
+					sword.setRotation(90*swingPercent);
+					sword.move(-1*swingPercent*50, swing(swingPercent));
+				}
+			} else if ( elapsedSwingTime < 1.5*swingTime )
+			{
+				printf("est:%f\n", swingPercent);
+				sword.move(0, -2 * (swingPercent - 1.5));
+				if ( firstPlayer )
+				{
+					sword.setRotation(-90*swingPercent);
+				}
+				else
+				{
+					sword.setRotation(90*swingPercent);
+				}
 			}
 			// retract for second swing:
 				//swinging = false;
