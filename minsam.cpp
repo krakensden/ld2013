@@ -100,7 +100,7 @@ class Player {
 
 	void resetSword()
 	{
-		float y = selfBound().top  + selfBound().height;// - swordBound().height/2;
+		float y = selfBound().top  + selfBound().height - swordBound().height;// - swordBound().height/2;
 		float x = selfBound().left;
 		// Move to edge
 		if ( !firstPlayer )
