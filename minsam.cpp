@@ -66,7 +66,7 @@ class Player {
 			self.setOutlineColor(sf::Color(0,0,0));
 			self.setOutlineThickness(1);
 		}
-		else 
+		else
 		{
 			self.setPosition(3*width/4,selfYCoord);
 
@@ -165,7 +165,7 @@ class Player {
 	}
 };
 
-enum States 
+enum States
 {
 	Game,
 	Victory
@@ -198,7 +198,7 @@ int main() {
 			{
 				return 0;
 			}
-			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Escape ) ) 
+			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Escape ) )
 			{
 				return 0;
 			}
