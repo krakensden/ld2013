@@ -77,18 +77,10 @@ class Player {
 		if ( firstPlayer )
 		{
 			self.setPosition(width/4,selfYCoord);
-
-			//self.setFillColor(sf::Color(250, 218, 221));
-			//self.setOutlineColor(sf::Color(0,0,0));
-			//self.setOutlineThickness(1);
 		}
 		else
 		{
 			self.setPosition(3*width/4,selfYCoord);
-
-			//self.setFillColor(sf::Color(239, 48, 36));
-			//self.setOutlineColor(sf::Color(0,0,0));
-			//self.setOutlineThickness(1);
 		}
 		resetSword();
 
