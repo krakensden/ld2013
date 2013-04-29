@@ -13,9 +13,11 @@ double swing(double x)
 	return -15*sin(x*M_PI);
 }
 
-void center(sf::Transformable* ob)
+template <class T>
+void center(T* ob)
 {
-	ob->setPosition(width/2, height/2);
+	sf::FloatRect r = ob->getGlobalBounds();
+	ob->setPosition(width/2-r.width/2, height/2-r.height/2);
 }
 
 class Player {
@@ -213,19 +215,31 @@ int main() {
 		
 	sf::Font font;
 	font.loadFromFile("DejaVuSansMono-Bold.ttf");
-	sf::Text instructions("To Play:\n"
-		"Get a friend, and share the keyboard. The player on the left has the 'a' key,\n"
-		"the player on the right has the right shift key. Tap your key once to charge,\n"
-		"and once more to strike. Whoever hits a sword first, loses.", font);
 
 	sf::Text firstPlayerWins("First player wins!\n", font);
 	sf::Text secondPlayerWins("Second player wins!\n", font);
 
-	center(&firstPlayerWins);
-	center(&secondPlayerWins);
-	instructions.setCharacterSize(14);
-	instructions.setPosition(width/2-instructions.getGlobalBounds().width/2
-			,3*height/4-instructions.getGlobalBounds().height/2);
+	sf::Texture aKeyTexture, semiKeyTexture, resetKeyTexture;
+	sf::Sprite aKey(aKeyTexture), semiKey(semiKeyTexture), resetKey(resetKeyTexture);
+	aKey.setTextureRect(sf::IntRect(0,0,100,72));
+	semiKey.setTextureRect(sf::IntRect(0,0,100,72));
+	resetKey.setTextureRect(sf::IntRect(0,0,100,63));
+	aKeyTexture.loadFromFile("a.png");
+	semiKeyTexture.loadFromFile("semicolon.png");
+	resetKeyTexture.loadFromFile("reset.png");
+
+	center<sf::Text>(&firstPlayerWins);
+	center<sf::Text>(&secondPlayerWins);
+	center<sf::Sprite>(&resetKey);
+	center<sf::Sprite>(&aKey);
+	center<sf::Sprite>(&semiKey);
+
+	resetKey.move(0, height/4.0);
+	aKey.move(-1*width/4.0, height/4.0);
+	semiKey.move(width/4.0, height/4.0);
+
+	firstPlayerWins.move(0, -100);
+	secondPlayerWins.move(0, -100);
 
 	window.clear();
 
@@ -253,7 +267,8 @@ int main() {
 			{
 				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !aWasPressed )
 					f.act();
-				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) && !shiftWasPressed )
+				if ( sf::Keyboard::isKeyPressed(sf::Keyboard::SemiColon) 
+						&& !shiftWasPressed )
 					s.act();
 			}
 			if ( sf::Keyboard::isKeyPressed(sf::Keyboard::R) )
@@ -265,7 +280,7 @@ int main() {
 				state = Game;
 			}
 			aWasPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-			shiftWasPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::RShift);
+			shiftWasPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::SemiColon);
 		}
 		if ( state == Game )
 		{
@@ -308,7 +323,9 @@ int main() {
 			{ // nobody dead
 			}
 		}
-		window.draw(instructions);
+		window.draw(resetKey);
+		window.draw(aKey);
+		window.draw(semiKey);
 
 		clock.restart();
 		window.display();
